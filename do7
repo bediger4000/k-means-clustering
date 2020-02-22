@@ -8,4 +8,4 @@ grep '3$' out > clust3
 grep '4$' out > clust4
 grep '5$' out > clust5
 grep '6$' out > clust6
-gnuplot < seven.load
+#gnuplot < seven.load
