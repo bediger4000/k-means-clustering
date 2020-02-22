@@ -1,6 +1,6 @@
 # K-means clustering experiment
 
-Just a quickie to mess around with k-means clustering.
+Just a quickie to mess around with [k-means clustering](https://en.wikipedia.org/wiki/K-means_clustering).
 
 And it looks like it works.
 
