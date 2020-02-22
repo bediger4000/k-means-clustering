@@ -1,0 +1,11 @@
+./genrand 450 > randx
+./km1 randx 7 > out
+grep 'c.$' out > cent
+grep '0$' out > clust0
+grep '1$' out > clust1
+grep '2$' out > clust2
+grep '3$' out > clust3
+grep '4$' out > clust4
+grep '5$' out > clust5
+grep '6$' out > clust6
+gnuplot < seven.load

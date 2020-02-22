@@ -1,0 +1,3 @@
+pl 'cent' with points pointtype 7 pointsize 2.0 lc rgb "red", 'clust1' lc rgb "orange", 'clust0' lc rgb "green"
+pause -1
+quit

@@ -1,0 +1,7 @@
+./genblob 200 > blob
+./km1 blob 2 > out
+grep 'c.$' out > cent
+grep '0$' out > clust0
+grep '1$' out > clust1
+
+gnuplot < blob.load

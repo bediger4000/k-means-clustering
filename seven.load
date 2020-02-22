@@ -1,0 +1,4 @@
+unset key
+pl 'cent' with points pointtype 7 pointsize 2.0 lc rgb "red", 'clust0', 'clust1', 'clust2', 'clust3', 'clust4', 'clust5', 'clust6'
+pause -1
+quit
