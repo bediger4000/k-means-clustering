@@ -35,21 +35,7 @@ func main() {
 
 func kmeanscluster(k int, points []Point) {
 
-	var centroids []Point
-
-	for len(centroids) < k {
-		candidate := points[rand.Intn(len(points))]
-		foundit := false
-		for _, centroid := range centroids {
-			if candidate.x == centroid.x && candidate.y == centroid.y {
-				foundit = true
-				break
-			}
-		}
-		if !foundit {
-			centroids = append(centroids, candidate)
-		}
-	}
+	centroids := randomCentroids(k, points)
 
 	looping := true
 
@@ -170,4 +156,23 @@ func readPoints(filename string) []Point {
 	}
 
 	return points
+}
+
+func randomCentroids(k int, points []Point) (centroids []Point) {
+
+	for len(centroids) < k {
+		candidate := points[rand.Intn(len(points))]
+		foundit := false
+		for _, centroid := range centroids {
+			if candidate.x == centroid.x && candidate.y == centroid.y {
+				foundit = true
+				break
+			}
+		}
+		if !foundit {
+			centroids = append(centroids, candidate)
+		}
+	}
+
+	return
 }
