@@ -249,18 +249,24 @@ type interval struct {
 */
 func weightedChoice(D []dist) int {
 	sumValues := 0.0
-	intervals := make([]interval, len(D))
+
+	var intervals []interval
 
 	for i := range D {
 		sumValues += D[i].D2
 		intervals = append(intervals, interval{maxval: sumValues, index: D[i].pointIndex})
 	}
 
+	fmt.Printf("Intervals %d:\n", len(intervals))
+	for i := range intervals {
+		fmt.Printf("%3d   %2d   %f\n", i, intervals[i].index, intervals[i].maxval)
+	}
+
 	inInterval := rand.Float64() * sumValues
 
 	for i := range intervals {
 		if inInterval < intervals[i].maxval {
-			fmt.Printf("Sum of D62 %f, random value %f, picking interval %d/%f\n",
+			fmt.Printf("\nSum of D2 %f, random value %f, picking interval %d/%f\n\n",
 				sumValues, inInterval, i, intervals[i].maxval)
 			return intervals[i].index
 		}
@@ -309,17 +315,62 @@ func fillDistances(D []dist, points []Point, centroids []Point) {
 
 type pointDist struct {
 	distDiff   float64
-	distances  []dist // here, the pointIndex is that of a centroid
-	pointIndex int
-}
-
-func assignToClusters(orderedPoints []pointDist, k int) (clusters [][]Point) {
-	return
+	distances  []dist // distance to centroids, centroid array-order
+	pointIndex int    // here, the pointIndex is that of a centroid
 }
 
 /*
-Order points by the distance to their nearest cluster minus distance to
-the farthest cluster (= biggest benefit of best over worst assignment)
+	Assign points to their preferred cluster until this cluster is full, then
+	resort remaining objects, without taking the full cluster into account
+	anymore
+
+	This sounds like: Once a cluster is full, re-calculate the distance difference
+	based on remaining (non-full clusters), and assign points to their preferred
+	cluster until another cluster fills up.
+
+	Formal parameter orderedPoints should be in descending order by distDiff
+*/
+func assignToClusters(orderedPoints []pointDist, points []Point, k int) (clusters [][]Point) {
+	sumPop := 0.0
+	for i := range points {
+		sumPop += points[i].pop
+	}
+
+	desiredClusterPopulation := sumPop / float64(k)
+	// each element of clusterPopulation is the sum of points' population in that cluster
+	clusterPopulation := make([]float64, k)
+
+	/*
+		type pointDist struct {
+		distDiff   float64
+		distances  []dist // distance to centroids, centroid array-order
+		pointIndex int
+	*/
+
+	for i := range orderedPoints {
+		var centroidIdx int
+		minDist := math.MaxFloat32
+		for j := range orderedPoints[i].dist {
+			if orderedPoints[i].dist[j] < minDist {
+				minDist = orderedPoints[i].dist[j]
+				centroidIdx = j
+			}
+		}
+		relevantPt := points[orderedPoints[i].pointIndex]
+		cluster[centroidIdx] = append(cluster[centroidIdx], relevantPt)
+		clusterPopulation[centroidIdx] += relevantPt.pop
+
+		clusterPopulation[centroidIdx] >= desiredClusterPopulation{
+			// Rework orderdPoints without centroid at centroidIdx
+		}
+	}
+}
+
+/*
+	Order points by the distance to their nearest cluster minus distance to the
+	farthest cluster (= biggest benefit of best over worst assignment)
+
+	Note that this seems to mean sort in descending order by difference distance
 */
 func orderPointsByDistance(points []Point, centroids []Point) []pointDist {
 	var orderedPoints []pointDist
@@ -334,6 +385,7 @@ func orderPointsByDistance(points []Point, centroids []Point) []pointDist {
 		ds := distSlice(oPoint.distances)
 		sort.Sort(ds)
 		m := len(centroids)
+		// Remember oPoint.distances is sorted.
 		oPoint.distDiff = oPoint.distances[m-1].D2 - oPoint.distances[0].D2
 
 		orderedPoints = append(orderedPoints, oPoint)
@@ -353,5 +405,5 @@ func (ps distSlice) Swap(i, j int)      { ps[i], ps[j] = ps[j], ps[i] }
 type pointDistSlice []pointDist
 
 func (pds pointDistSlice) Len() int           { return len(pds) }
-func (pds pointDistSlice) Less(i, j int) bool { return pds[i].distDiff < pds[j].distDiff }
+func (pds pointDistSlice) Less(i, j int) bool { return pds[i].distDiff > pds[j].distDiff }
 func (pds pointDistSlice) Swap(i, j int)      { pds[i], pds[j] = pds[j], pds[i] }
