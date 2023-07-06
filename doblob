@@ -1,7 +1,52 @@
-./genblob 200 > blob
-./km1 blob 2 > out
-grep 'c.$' out > cent
-grep '0$' out > clust0
-grep '1$' out > clust1
+#!/bin/bash
+#!/bin/bash
+set -eou pipefail
 
-gnuplot < blob.load
+# Draw N circular "blobs" of M total points,
+# cluster them into N clusters via k-means,
+# use gnuplot to draw a colored plot
+# Usage: ./doblob N M
+# N - number of circular "blobs" of points
+# M - total count of points
+
+M=$#
+if (( M > 0 ))
+then
+	# Number of blobs
+	N=$1
+	if (( M > 1 ))
+	then
+		# Number of points total
+		POINTS=$2
+	else
+		POINTS=1000
+	fi
+else
+	N=2
+fi
+
+rm -rf blob out cent clust[0-9] clust[0-9][0-9]
+
+./genblob $N $POINTS > blob
+./km1 blob $N > out
+grep 'c.$' out > cent
+I=0
+while (( I < N ))
+do
+	grep $I\$ out > clust$I
+	(( I = I + 1 ))
+done
+
+echo 'unset key' > blob$N.load
+echo 'plot \' >> blob$N.load
+I=0
+while (( I < N ))
+do
+	echo "	'clust$I', \\" >> blob$N.load
+	(( I = I + 1 ))
+done
+echo '	"cent" with points pointtype 7 pointsize 2.0 lc rgb "red"' >> blob$N.load
+echo 'pause 120' >> blob$N.load
+
+
+gnuplot < blob$N.load
