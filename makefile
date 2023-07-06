@@ -1,6 +1,6 @@
 all: genrand genblob km1
 	./do7
-	./doblob
+	./doblob 3 15000
 
 km1: km1.go
 	go build km1.go
